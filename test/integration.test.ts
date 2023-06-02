@@ -84,6 +84,8 @@ describe("CarTroubleshooter works as expected", () => {
 
     const invalid_json_tree_path_has_cycles = "./test/cycles.json"
 
+    const invalid_json_tree_path_has_islands = "./test/islands.json"
+
     describe("given an invalid choice tree", () => {
         it("should thow an error if path to file is not valid", () => {
             try {
@@ -121,6 +123,17 @@ describe("CarTroubleshooter works as expected", () => {
 
                 expect(true).toBe(false)
             } catch (err) {
+                expect(err).toBeDefined()
+            }
+        })
+
+        it("should thow an error if tree contains islands", () => {
+            try {
+                const carTroubleshooter = new CarTroubleshooter(invalid_json_tree_path_has_islands, "0")
+
+                expect(true).toBe(false)
+            } catch (err) {
+                console.log(err)
                 expect(err).toBeDefined()
             }
         })

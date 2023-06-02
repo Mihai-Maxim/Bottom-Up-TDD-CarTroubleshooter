@@ -65,10 +65,12 @@ export class CarTroubleshooter implements ICarTroubleshooter {
 
        const hasLoop = Object.values(referenceCounter).find(value => value > 1)
 
-       if (hasLoop) {
+       const hasRootKey = (rootKey in referenceCounter!)
+
+       if (hasLoop || hasRootKey) {
            binaryChoiceTree.valid = false
            delete binaryChoiceTree.tree
-           binaryChoiceTree.errors = ["The same answer can't be reference in multiple questions!"]
+           binaryChoiceTree.errors = ["The same question/answer can't be referenced in multiple questions!"]
 
            return
        }
@@ -95,10 +97,9 @@ export class CarTroubleshooter implements ICarTroubleshooter {
 
         for (const key in tree) {
             if (!visited[key]) {
-                console.log(key)
                 binaryChoiceTree.valid = false
                 delete binaryChoiceTree.tree
-                binaryChoiceTree.errors = ["There are some questions that can't be reached!"]
+                binaryChoiceTree.errors = [`Question/Answer: ${tree[key].q} can't be reached!`]
 
                 return 
             }

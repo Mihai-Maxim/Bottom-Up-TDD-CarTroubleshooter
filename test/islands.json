@@ -45,5 +45,12 @@
     },
     "11": {
         "q": "Get it in for service"
+    },
+    "12": {
+        "q": "Are you an island?",
+        "y": "13"
+    },
+    "13": {
+        "q": "That's bad"
     }
 }
