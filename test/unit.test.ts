@@ -1,12 +1,18 @@
 import { CarTroubleshooter } from "../CarTroubleshooter"
 
 describe("CarTroubleshooter works as expected", () => {
-    const json_tree_path = "options.json"
+    const valid_json_tree_path = "options.json"
 
     describe("given a valid choice tree", () => {
-        const carTroubleshooter = new CarTroubleshooter(json_tree_path)
+        let carTroubleshooter: CarTroubleshooter
 
-        it("the first question is set right", () => {
+        try {
+            carTroubleshooter = new CarTroubleshooter(valid_json_tree_path)
+        } catch(err) {
+
+        }
+
+        it("should set the first question right", () => {
             const { question, isEnd, availableChoices: { yes, no } } = carTroubleshooter.getCurrentQuestion()
 
             expect(question).toBe("Is the car silent when you turn the key?")
@@ -15,7 +21,8 @@ describe("CarTroubleshooter works as expected", () => {
             expect(isEnd).toBe(false)
 
         })
-        it("changes the question if a valid answer is registered", () => {
+        
+        it("should change the question if a valid answer is registered", () => {
             const { registered, error } = carTroubleshooter.registerAnswer("y")
         
             expect(registered).toBe(true)
@@ -31,7 +38,7 @@ describe("CarTroubleshooter works as expected", () => {
 
         })
 
-        it("resets the choice tree", () => {
+        it("should reset the choice tree if startOver is called", () => {
             carTroubleshooter.startOver()
 
             const { question, isEnd, availableChoices: { yes, no } } = carTroubleshooter.getCurrentQuestion()
@@ -43,5 +50,19 @@ describe("CarTroubleshooter works as expected", () => {
         })
         // write other tests
 
+    })
+
+
+    const invalid_json_tree_path = "invalid.json"
+
+    describe("given an invalid choice tree", () => {
+        it("should thow an error if I try to instantiate the tree", () => {
+            try {
+                const carTroubleshooter = new CarTroubleshooter(invalid_json_tree_path)
+                expect(true).toBe(false)
+            } catch (err) {
+                expect(err).toBeDefined()
+            }
+        })
     })
 })
