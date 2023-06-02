@@ -1,17 +1,14 @@
 import { CarTroubleshooter } from "../CarTroubleshooter"
 
 describe("CarTroubleshooter works as expected", () => {
-    const valid_json_tree_path = "options.json"
+    const valid_json_tree_path = "./dist/options.json"
 
     describe("given a valid choice tree", () => {
-        let carTroubleshooter: CarTroubleshooter
 
-        try {
-            carTroubleshooter = new CarTroubleshooter(valid_json_tree_path)
-        } catch(err) {
 
-        }
+        const carTroubleshooter = new CarTroubleshooter(valid_json_tree_path)
 
+       
         it("should set the first question right", () => {
             const { question, isEnd, availableChoices: { yes, no } } = carTroubleshooter.getCurrentQuestion()
 
@@ -21,7 +18,7 @@ describe("CarTroubleshooter works as expected", () => {
             expect(isEnd).toBe(false)
 
         })
-        
+
         it("should change the question if a valid answer is registered", () => {
             const { registered, error } = carTroubleshooter.registerAnswer("y")
         
@@ -48,17 +45,17 @@ describe("CarTroubleshooter works as expected", () => {
             expect(no).toBe(true)
             expect(isEnd).toBe(false)
         })
-        // write other tests
 
     })
 
 
-    const invalid_json_tree_path = "invalid.json"
+    const invalid_json_tree_path = "./dist/invalid.json"
 
     describe("given an invalid choice tree", () => {
-        it("should thow an error if I try to instantiate the tree", () => {
+        it("should thow an error if path to file is not valid", () => {
             try {
                 const carTroubleshooter = new CarTroubleshooter(invalid_json_tree_path)
+
                 expect(true).toBe(false)
             } catch (err) {
                 expect(err).toBeDefined()

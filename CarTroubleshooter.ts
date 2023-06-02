@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 
 interface TreeNode {
     q: string;
@@ -36,24 +37,75 @@ interface ICarTroubleshooter {
 
 export class CarTroubleshooter implements ICarTroubleshooter {
     private binaryChoiceTree: BinaryChoiceTree;
+
+    private currentNode: TreeNode
+
     private loadBinaryChoiceTree(filePath: string): BinaryChoiceTree {
-        throw new Error("Method not implemented.");
+        try {
+            const jsonString = fs.readFileSync(filePath, 'utf8');
+
+            const choiceTree = JSON.parse(jsonString) as ChoiceTree;
+
+            const binaryChoiceTree: BinaryChoiceTree = {
+                valid: true,
+                tree: choiceTree
+            }
+
+            return binaryChoiceTree
+
+        } catch (error) {
+
+            const binaryChoiceTree: BinaryChoiceTree = {
+                valid: false,
+                errors: ["error reading JSON file"]
+            }
+           return binaryChoiceTree
+        }
     }
 
     getCurrentQuestion(): Question {
-        throw new Error("Method not implemented.")
+        const { q, y, n } = this.currentNode
+
+        const choice: Choice = {
+            no: n ? true : false,
+            yes: y ? true : false
+
+        }
+        const currentQuestion: Question = {
+            question: q,
+            availableChoices: choice,
+            isEnd: !choice.no && !choice.yes
+        }
+
+        return currentQuestion
     }
 
     registerAnswer(choice: "y" | "n"): AnswerStatus {
-        throw new Error("Method not implemented.")
+        if (!this.currentNode[choice]) {
+            return {
+                registered: false,
+                error: `${choice} is not available for question: "${this.currentNode.q}"`
+            } as AnswerStatus
+        }
+        this.currentNode = this.binaryChoiceTree.tree![this.currentNode[choice] as string]
+
+        return {
+            registered: true
+        }
     }
 
     startOver(): void {
-        throw new Error("Method not implemented.")
+        this.currentNode = this.binaryChoiceTree.tree!["0"]
     }
 
     constructor(filePath: string) {
-        this.binaryChoiceTree = this.loadBinaryChoiceTree(filePath)
+        const binaryChoiceTree = this.loadBinaryChoiceTree(filePath)
+
+        if (!binaryChoiceTree.valid) throw new Error(binaryChoiceTree.errors?.join("\n"))
+
+        this.binaryChoiceTree = binaryChoiceTree
+        this.currentNode = binaryChoiceTree.tree!["0"]
+
     }
 
 }
