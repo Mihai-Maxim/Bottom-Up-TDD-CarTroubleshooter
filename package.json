@@ -1,0 +1,19 @@
+{
+  "name": "learn-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "npx tsc && node --experimental-vm-modules ./node_modules/.bin/jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "@types/jest": "^29.5.1"
+  }
+}
