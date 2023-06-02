@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "npx tsc && node --experimental-vm-modules ./node_modules/.bin/jest --verbose"
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",

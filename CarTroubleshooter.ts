@@ -40,26 +40,115 @@ export class CarTroubleshooter implements ICarTroubleshooter {
 
     private currentNode: TreeNode
 
-    private loadBinaryChoiceTree(filePath: string): BinaryChoiceTree {
+    private rootKey: string
+
+    private validateBinaryChoiceTree(binaryChoiceTree: BinaryChoiceTree, rootKey: string) {
+       // create an occurance map with all the yes / no choices, every yes / no reference should appear only once (no cycles)!
+
+       const referenceCounter: Record<string, number> = {}
+
+       const { tree } = binaryChoiceTree
+       for (let k in tree) {
+            const node = tree[k]
+            const keys = []
+            node.n ? keys.push(node.n) : null
+            node.y ? keys.push(node.y) : null
+
+            keys.forEach(key => {
+                if (!(key in binaryChoiceTree)) {
+                    referenceCounter[key] = 1
+                } else {
+                    referenceCounter[key] += 1
+                }
+            })
+       }
+
+       const hasLoop = Object.values(referenceCounter).find(value => value > 1)
+
+       if (hasLoop) {
+           binaryChoiceTree.valid = false
+           delete binaryChoiceTree.tree
+           binaryChoiceTree.errors = ["The same answer can't be reference in multiple questions!"]
+
+           return
+       }
+
+
+       // also, there should not be island nodes (only the root can't have a father)
+       // a dfs search should do it 
+       const visited: Record<string, boolean> = {};
+
+
+       function dfs(nodeKey: string) {
+           visited[nodeKey] = true;
+           const node = tree![nodeKey];
+           if (node.y && !visited[node.y]) {
+               dfs(node.y);
+           }
+
+           if (node.n && !visited[node.n]) {
+               dfs(node.n);
+           }
+        }
+
+        dfs(rootKey);
+
+        for (const key in tree) {
+            if (!visited[key]) {
+                console.log(key)
+                binaryChoiceTree.valid = false
+                delete binaryChoiceTree.tree
+                binaryChoiceTree.errors = ["There are some questions that can't be reached!"]
+
+                return 
+            }
+        }
+
+
+    }
+
+    private loadBinaryChoiceTree(filePath: string, rootKey: string): BinaryChoiceTree {
         try {
             const jsonString = fs.readFileSync(filePath, 'utf8');
 
             const choiceTree = JSON.parse(jsonString) as ChoiceTree;
+
+            if (!(rootKey in choiceTree)) {
+                return {
+                    valid: false,
+                    errors: ["Invalid root key"]
+                } as BinaryChoiceTree
+            }
 
             const binaryChoiceTree: BinaryChoiceTree = {
                 valid: true,
                 tree: choiceTree
             }
 
+            this.validateBinaryChoiceTree(binaryChoiceTree, rootKey)
+
             return binaryChoiceTree
 
-        } catch (error) {
-
-            const binaryChoiceTree: BinaryChoiceTree = {
-                valid: false,
-                errors: ["error reading JSON file"]
+        } catch (error: any) {
+            if (error.code === 'ENOENT') {
+                const binaryChoiceTree: BinaryChoiceTree = {
+                  valid: false,
+                  errors: ['File not found']
+                };
+                return binaryChoiceTree;
+            } else if (error instanceof SyntaxError) {
+                const binaryChoiceTree: BinaryChoiceTree = {
+                  valid: false,
+                  errors: ['Invalid JSON format']
+                };
+                return binaryChoiceTree;
+            } else {
+                const binaryChoiceTree: BinaryChoiceTree = {
+                  valid: false,
+                  errors: ['Error reading JSON file']
+                };
+                return binaryChoiceTree;
             }
-           return binaryChoiceTree
         }
     }
 
@@ -98,13 +187,14 @@ export class CarTroubleshooter implements ICarTroubleshooter {
         this.currentNode = this.binaryChoiceTree.tree!["0"]
     }
 
-    constructor(filePath: string) {
-        const binaryChoiceTree = this.loadBinaryChoiceTree(filePath)
+    constructor(filePath: string, rootKey: string) {
+        const binaryChoiceTree = this.loadBinaryChoiceTree(filePath, rootKey)
 
         if (!binaryChoiceTree.valid) throw new Error(binaryChoiceTree.errors?.join("\n"))
 
         this.binaryChoiceTree = binaryChoiceTree
-        this.currentNode = binaryChoiceTree.tree!["0"]
+        this.rootKey = rootKey
+        this.currentNode = binaryChoiceTree.tree![rootKey]
 
     }
 
