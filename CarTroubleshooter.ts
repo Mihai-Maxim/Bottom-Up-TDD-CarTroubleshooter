@@ -40,6 +40,8 @@ export class CarTroubleshooter implements ICarTroubleshooter {
 
     private currentNode: TreeNode
 
+    private rootKey: string
+
     private validateBinaryChoiceTree(binaryChoiceTree: BinaryChoiceTree, rootKey: string) {
        // create an occurance map with all the yes / no choices, every yes / no reference should appear only once (no cycles)!
 
@@ -183,7 +185,7 @@ export class CarTroubleshooter implements ICarTroubleshooter {
     }
 
     startOver(): void {
-        this.currentNode = this.binaryChoiceTree.tree!["0"]
+        this.currentNode = this.binaryChoiceTree.tree![this.rootKey]
     }
 
     constructor(filePath: string, rootKey: string) {
@@ -192,6 +194,7 @@ export class CarTroubleshooter implements ICarTroubleshooter {
         if (!binaryChoiceTree.valid) throw new Error(binaryChoiceTree.errors?.join("\n"))
 
         this.binaryChoiceTree = binaryChoiceTree
+        this.rootKey = rootKey
         this.currentNode = binaryChoiceTree.tree![rootKey]
 
     }
