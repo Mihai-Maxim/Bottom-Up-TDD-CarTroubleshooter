@@ -5,15 +5,8 @@ describe("CarTroubleshooter works as expected", () => {
 
     describe("given a valid choice tree", () => {
 
-        try {
-            const carTroubleshooter = new CarTroubleshooter(valid_json_tree_path, '0')
-        } catch (err) {
-            console.log(err)
-        }
-
         const carTroubleshooter = new CarTroubleshooter(valid_json_tree_path, '0')
 
-       
         it("should set the first question right", () => {
             const { question, isEnd, availableChoices: { yes, no } } = carTroubleshooter.getCurrentQuestion()
 
